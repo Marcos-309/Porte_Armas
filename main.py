@@ -92,7 +92,7 @@ def main():
                 if requisito_cidadania and verificar_idade(idade, requisito_cidadania[2]):
                     print(f"\nVocê pode obter porte de arma no seu país de origem ({pais_cidadania}).")
                     
-                    # Perguntar para qual país deseja homologar o porte
+                    #TESTE TEST Perguntar para qual país deseja homologar o porte
                     pais_destino = input("Para qual país você deseja homologar o porte de armas? ").strip()
                     pais_destino_id = next((pais[0] for pais in paises if pais[1].lower() == pais_destino.lower()), None)
 
