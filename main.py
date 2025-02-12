@@ -1,6 +1,6 @@
 import mysql.connector
 import os
-
+import time            
 # Função para limpar o console
 def cls():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -15,103 +15,94 @@ def conectar_db():
     )
 
 # Função para listar os países disponíveis
-def listar_paises():
+def exibir_requisitos(pais):
     db = conectar_db()
     cursor = db.cursor()
-    cursor.execute("SELECT * FROM pais")
-    paises = cursor.fetchall()
-    db.close()
+    cursor.execute(f"SELECT requisitos FROM Paises_Requisitos WHERE nome_pais = '{pais}'")
+    paises = cursor.fetchone()
 
+    if resultado:
+        print(f"\nRequisitos para o porte de armas no {pais}: {resultado[0]}")
+    else:
+        print("\nPais não encontrado!")
+        time.sleep(1)
+
+    cursor.close()
+    db.close()
     cls()  # Limpar tela
-    print("Escolha um país para homologação do porte de arma:")
-    for i, pais in enumerate(paises):
-        print(f"{i + 1}. {pais[1]}")
     
-    return paises
-
 # Função para verificar requisitos de porte de arma de um país
-def verificar_requisitos(pais_id):
-    db = conectar_db()
-    cursor = db.cursor()
-    cursor.execute("SELECT * FROM requisitos WHERE pais_id = %s", (pais_id,))
-    requisito = cursor.fetchone()
-    db.close()
-    return requisito
+def pedir_porte_de_arma():
+    idade = int(input("\nDigite sua idade: "))
+    
+    if idade < 18:
+        print("\nNão é possível efetuar pedido de porte de armas. Idade mínima para pedido são 18 anos.\n")
+        time.sleep(1)
+        return
+    
+    pais = input("Para qual país você deseja pedir o porte de armas? (Escolha entre os 20 países)\n").strip().lower()
+    
+    paises_validos = ['alemanha', 'argentina', 'brasil', 'colômbia', 'espanha', 'estados unidos', 
+                      'frança', 'grécia', 'hungria', 'israel', 'itália', 'méxico', 'peru', 'polônia', 
+                      'portugal', 'república tcheca', 'romênia', 'suécia', 'suíça', 'venezuela']
+    
+    if pais not in paises_validos:
+        print("\nNão é um dos 20 países válidos. Insira um país válido.\n")
+        return 
+    
+    pais = pais.title()  # Deixar o nome do país com as iniciais maiúsculas
+    exibir_requisitos(pais)
 
-# Função para verificar se o usuário tem idade mínima para obter porte de arma
-def verificar_idade(idade, idade_minima):
-    if idade >= idade_minima:
-        return True
-    return False
+# Função para homologar o porte de arma
+def homologar_porte_de_arma():
+    idade = int(input("\nDigite sua idade: "))
+    
+    if idade < 18:
+        print("\nNão é possível efetuar pedido de homologação de porte de armas. Idade mínima para pedido são 18 anos.\n")
+        time.sleep(1)
+        return
+    
+    pais = input("Para qual país você deseja homologar o porte de armas? (Escolha entre os 20 países)\n").strip().lower()
+    
+    paises_validos = ['alemanha', 'argentina', 'brasil', 'colômbia', 'espanha', 'estados unidos', 
+                      'frança', 'grécia', 'hungria', 'israel', 'itália', 'méxico', 'peru', 'polônia', 
+                      'portugal', 'república tcheca', 'romênia', 'suécia', 'suíça', 'venezuela']
+    
+    if pais not in paises_validos:
+        print("\nNão é um dos 20 países válidos. Insira um país válido.\n")
+        time.sleep(1)
+        return
+    
+    pais = pais.title()  # Deixar o nome do país com as iniciais maiúsculas
+    exibir_requisitos(pais)
 
 # Função principal do programa
 def main():
-    cls()  # Limpar tela
-    
-    # Parte 1: Perguntar se o usuário tem porte de arma
-    tem_porte = input("Você tem porte de arma? (sim/não): ").strip().lower()
-
-    if tem_porte == "sim":
-        # Perguntar de qual país o usuário tem o porte
-        paises = listar_paises()
-        pais_origem = input("\nDe qual país você tem o porte de armas? ").strip()
-
-        # Perguntar para qual país deseja homologar
-        pais_destino = input("Para qual país você deseja homologar o porte de armas? ").strip()
-
-        # Buscar IDs dos países
-        pais_origem_id = next((pais[0] for pais in paises if pais[1].lower() == pais_origem.lower()), None)
-        pais_destino_id = next((pais[0] for pais in paises if pais[1].lower() == pais_destino.lower()), None)
-
-        # Verificar requisitos do país de destino
-        if pais_destino_id:
-            requisito_destino = verificar_requisitos(pais_destino_id)
-            if requisito_destino:
-                print(f"\nRequisitos para homologação do porte de arma em {pais_destino}:")
-                print(f"Idade mínima: {requisito_destino[2]} anos")
-                print(f"Documentos necessários: {requisito_destino[3]}")
-            else:
-                print(f"\nNão foram encontrados requisitos para o país {pais_destino}.")
+    while True:
+        cls()  # Limpar tela
+        print("########################################")
+        print("#                                      #")
+        print("#     HOMOLOGAÇÃO DE PORTE DE ARMAS    #")
+        print("#                                      #")
+        print("# Escolha uma das opções;              #")
+        print("# 1 - Pedir porte de Arma;             #")
+        print("# 2 - Homologar porte de Arma;         #")
+        print("# 3 - Sair;                            #")
+        print("#                                      #")
+        print("########################################")
+        
+        opcao = input("Escolha uma opção (1, 2, ou 3): ")
+        
+        if opcao == "1":
+            pedir_porte_de_arma()
+        elif opcao == "2":
+            homologar_porte_de_arma()
+        elif opcao == "3":
+            print("\n Saindo do programa...\n")
+            time.sleep(1)
+            break
         else:
-            print(f"\nPaís {pais_destino} não encontrado.")
-    
-    elif tem_porte == "não":
-        # Parte 2: Se o usuário não tem porte, perguntar se é cidadão de algum país
-        cls()
-        cidadania = input("Você é cidadão de algum dos países que permitem porte de arma? (sim/não): ").strip().lower()
-
-        if cidadania == "sim":
-            paises = listar_paises()
-            pais_cidadania = input("\nDe qual país você é cidadão? ").strip()
-            idade = int(input("Qual sua idade? "))
-            
-            pais_cidadania_id = next((pais[0] for pais in paises if pais[1].lower() == pais_cidadania.lower()), None)
-
-            if pais_cidadania_id:
-                requisito_cidadania = verificar_requisitos(pais_cidadania_id)
-                if requisito_cidadania and verificar_idade(idade, requisito_cidadania[2]):
-                    print(f"\nVocê pode obter porte de arma no seu país de origem ({pais_cidadania}).")
-                    
-                    #TESTE TEST Perguntar para qual país deseja homologar o porte
-                    pais_destino = input("Para qual país você deseja homologar o porte de armas? ").strip()
-                    pais_destino_id = next((pais[0] for pais in paises if pais[1].lower() == pais_destino.lower()), None)
-
-                    if pais_destino_id:
-                        requisito_destino = verificar_requisitos(pais_destino_id)
-                        if requisito_destino:
-                            print(f"\nRequisitos para homologação do porte de arma em {pais_destino}:")
-                            print(f"Idade mínima: {requisito_destino[2]} anos")
-                            print(f"Documentos necessários: {requisito_destino[3]}")
-                        else:
-                            print(f"\nNão foram encontrados requisitos para o país {pais_destino}.")
-                    else:
-                        print(f"\nPaís {pais_destino} não encontrado.")
-                else:
-                    print("Você não tem a idade mínima para obter porte de arma neste país.")
-            else:
-                print(f"\nPaís {pais_cidadania} não encontrado.")
-        else:
-            print("\nVocê não pode obter porte de arma se não for cidadão de um país que permita.")
-
-if __name__ == "__main__":
-    main()
+         print("\n Opção inválida! Tente novamente.\n")
+         time.sleep(1)  # Pausa por 1 segundo
+         
+main()
