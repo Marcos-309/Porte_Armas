@@ -19,7 +19,7 @@ def exibir_requisitos(pais):
     db = conectar_db()
     cursor = db.cursor()
     cursor.execute(f"SELECT requisitos FROM Paises_Requisitos WHERE nome_pais = '{pais}'")
-    paises = cursor.fetchone()
+    resultado = cursor.fetchone()
 
     if resultado:
         print(f"\nRequisitos para o porte de armas no {pais}: {resultado[0]}")
@@ -29,7 +29,7 @@ def exibir_requisitos(pais):
 
     cursor.close()
     db.close()
-    cls()  # Limpar tela
+   
     
 # Função para verificar requisitos de porte de arma de um país
 def pedir_porte_de_arma():
@@ -40,17 +40,29 @@ def pedir_porte_de_arma():
         time.sleep(1)
         return
     
-    pais = input("Para qual país você deseja pedir o porte de armas? (Escolha entre os 20 países)\n").strip().lower()
+    # Consultar a base de dados para pegar os países válidos
+    db = conectar_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT id_paises, nome_pais FROM paises_requisitos;")
+    paises = cursor.fetchall()  # Pega todos os países da consulta
+
+    for i in paises:
+        print(f"{i[0]}. {i[1].title()}")  # Exibe o nome do país com a primeira letra maiúscula
+
+    pais = input("\nEscolha um país da lista de 20 países válidos:\n").strip().lower()
     
-    paises_validos = ['alemanha', 'argentina', 'brasil', 'colômbia', 'espanha', 'estados unidos', 
-                      'frança', 'grécia', 'hungria', 'israel', 'itália', 'méxico', 'peru', 'polônia', 
-                      'portugal', 'república tcheca', 'romênia', 'suécia', 'suíça', 'venezuela']
-    
+    # Verificar se o país inserido está na lista retornada pela consulta
+    paises_validos = [p[1].lower() for p in paises]
+
     if pais not in paises_validos:
         print("\nNão é um dos 20 países válidos. Insira um país válido.\n")
+        time.sleep(1)
+        cursor.close()
+        db.close()
         return 
     
-    pais = pais.title()  # Deixar o nome do país com as iniciais maiúsculas
+    
+    pais = pais.title()  # Deixa o nome do país com as iniciais maiúsculas
     exibir_requisitos(pais)
 
 # Função para homologar o porte de arma
@@ -62,15 +74,25 @@ def homologar_porte_de_arma():
         time.sleep(1)
         return
     
-    pais = input("Para qual país você deseja homologar o porte de armas? (Escolha entre os 20 países)\n").strip().lower()
+      # Consultar a base de dados para pegar os países válidos
+    db = conectar_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT id_paises, nome_pais FROM paises_requisitos;")
+    paises = cursor.fetchall()  # Pega todos os países da consulta
+
+    for i in paises:
+        print(f"{i[0]}. {i[1].title()}")  # Exibe o nome do país com a primeira letra maiúscula
+
+    pais = input("\nEscolha um país da lista de 20 países válidos:\n").strip().lower()
     
-    paises_validos = ['alemanha', 'argentina', 'brasil', 'colômbia', 'espanha', 'estados unidos', 
-                      'frança', 'grécia', 'hungria', 'israel', 'itália', 'méxico', 'peru', 'polônia', 
-                      'portugal', 'república tcheca', 'romênia', 'suécia', 'suíça', 'venezuela']
-    
+     # Verificar se o país inserido está na lista retornada pela consulta
+    paises_validos = [p[1].lower() for p in paises]
+
     if pais not in paises_validos:
         print("\nNão é um dos 20 países válidos. Insira um país válido.\n")
         time.sleep(1)
+        cursor.close()
+        db.close()
         return
     
     pais = pais.title()  # Deixar o nome do país com as iniciais maiúsculas
